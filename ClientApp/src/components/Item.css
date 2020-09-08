@@ -1,0 +1,123 @@
+.item {
+    height: 2.2em;
+    line-height: 2.5em;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.selected {
+    background: rgb(248, 249, 250)
+}
+
+.indicator {
+    display: inline-flex;
+    border: none;
+    border-radius: 0.5em;
+    width: 2em;
+    height: 2em;
+    margin: auto 0;
+    line-height: 1em;
+    opacity: 0.5;
+    transition: opacity .25s ease-in-out;
+    -moz-transition: opacity .25s ease-in-out;
+    -webkit-transition: opacity .25s ease-in-out
+}
+
+.indicator:hover {
+    opacity: 1;
+}
+
+.childindicator {
+    display: inline-flex;
+    border: none;
+    border-radius: 0.5em;
+    height: 2em;
+    margin: auto 0px auto 0px;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+    line-height: 1em;
+    background: url(https://unpkg.com/ionicons@5.1.2/dist/svg/return-down-forward-outline.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: right;
+    opacity: 0.5;
+}
+
+.dots {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/ellipsis-horizontal-outline.svg);
+}
+
+.circle {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/ellipse-outline.svg);
+}
+
+.opensquare {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/scan-outline.svg);
+}
+
+.closedsquare {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/square-outline.svg);
+}
+
+.time {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/time-outline.svg);
+}
+
+.check {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/checkmark-circle-outline.svg);
+}
+
+.tick {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/checkbox-outline.svg);
+}
+
+.edit {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/create-outline.svg);
+}
+
+.outline {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/apps-outline.svg);
+}
+
+.open {
+    content: url(https://unpkg.com/ionicons@5.1.2/dist/svg/open-outline.svg);
+}
+
+.itemDesc {
+    height: 1.5em;
+    margin-left: 0.33em;
+    text-align: left;
+    flex-grow: 1;
+    line-height: 28px;
+    padding: 0;
+    border-bottom: 1px solid transparent;
+    margin-right: 10px;
+}
+
+input.itemDesc {
+    background: none;
+    padding: 0px;
+    border: none;
+    margin-top: 2px;
+    border-bottom: 1px dashed rgb(108, 117, 125);
+    border-top: 1px solid transparent;
+}
+
+.handle {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    margin: auto 0;
+    line-height: 1em;
+    opacity: 0.05;
+    transition: opacity .25s ease-in-out;
+    -moz-transition: opacity .25s ease-in-out;
+    -webkit-transition: opacity .25s ease-in-out
+}
+
+.handle:hover {
+    opacity: 0.5;
+}

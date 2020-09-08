@@ -1,0 +1,21 @@
+{
+    "ConnectionStrings": {
+        "DataConnectionString": "Data Source=bullt.db;Cache=Shared"
+    },
+    "Tokens": {
+        "Key": "abcdefghjiklmnop",
+        "Issuer": "http://localhost",
+        "Audience": "users"
+    },
+    "IdentityServer": {
+        "Clients": {
+            "bullt": {
+                "Profile": "IdentityServerSPA"
+            }
+        },
+        "Key": {
+            "Type": "Development"
+        }
+    },
+    "AllowedHosts": "*"
+}
