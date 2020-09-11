@@ -44,12 +44,6 @@ export default class App extends React.PureComponent<{}, { ready: boolean, authe
 
     public render() {
 
-        //const { ready, authenticated } = this.state;
-        // var link = document.createElement("a");
-        // link.href = this.props.path.replace(":id?", "");
-        // const returnUrl = `${link.protocol}//${link.host}${link.pathname}${link.search}${link.hash}`;
-        // const redirectUrl = `${ApplicationPaths.Login}?${QueryParameterNames.ReturnUrl}=${encodeURI(returnUrl)}`
-
         if (!this.state.ready) {
             return (
                 <Layout>

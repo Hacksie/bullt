@@ -6,12 +6,11 @@ import * as ItemsStore from '../store/Item';
 import * as StagesStore from '../store/Stages';
 import './Item.css';
 
-// At runtime, Redux will merge together...
 type ChildItemProps =
-  { level: number, parent: string }
-  & ItemsStore.ItemsState // ... state we've requested from the Redux store
+  { level: number, parent: string, keyPressHandler: React.SyntheticEvent<HTMLElement, KeyboardEvent> }
+  & ItemsStore.ItemsState
   & StagesStore.Stages
-  & typeof ItemsStore.actionCreators // ... plus action creators we've requested;
+  & typeof ItemsStore.actionCreators
 
 
 class ChildItemContainer extends React.PureComponent<ChildItemProps> {
@@ -37,40 +36,32 @@ class ChildItemContainer extends React.PureComponent<ChildItemProps> {
     );
   }
 
-  private selectIcon = (stageId: number): any => {
-    var stage = this.props.stages.find(s => s.id === stageId);
+  private keypress(e: React.KeyboardEvent<HTMLElement>): void {
 
-    if (stage) {
-      return stage.icon;
-    }
 
-    return "circle";
-  }
-
-  private keypress(e: any): void {
+    if (!this.props.selectedId)
+      return;
+    if (!this.inputRef.current)
+      return;
 
     if (e.key === 'Enter') {
-      if (!this.props.selectedId)
-        return;
-      if (!this.inputRef.current)
-        return;
-      var start = this.inputRef.current.selectionStart ? this.inputRef.current.selectionStart : 0;
-      var end = this.inputRef.current.selectionEnd ? this.inputRef.current.selectionEnd : 0;
+      const start = this.inputRef.current.selectionStart ? this.inputRef.current.selectionStart : 0;
+      const end = this.inputRef.current.selectionEnd ? this.inputRef.current.selectionEnd : 0;
       this.props.split(this.props.selectedId, start, end);
+      
     }
+
   }
-
-
 
   private renderItems() {
     return (
       <section>
         {this.props.items.filter(i => i.parentId === this.parent).map((item: ItemsStore.Item) => (
-          <div key={item.id} >
+          <div key={item.id}>
             <div onClick={() => { this.props.select(item.id) }} className={`item ${this.props.selectedId === item.id ? "selected" : ""}`}>
 
               <span className="childindicator" style={{ width: (3 * this.level) + "em" }}>&nbsp;</span>
-              <span className={`indicator ${this.selectIcon(item.stage)}`}></span>
+              <span className={`indicator ${item.indicator}`}></span>
 
               {(() => {
                 if (this.props.selectedId === item.id) {
@@ -81,16 +72,18 @@ class ChildItemContainer extends React.PureComponent<ChildItemProps> {
                 }
               })()}
 
-
               <Link className="handle open" to={`/${item.id}`} />
             </div>
             {(() => {
-              const p = {
-                ...this.props,
-                level: this.level + 1,
-                parent: item.id
+
+              if (ItemsStore.hasChildren(this.props.items, item.id)) {
+                const p = {
+                  ...this.props,
+                  level: this.level + 1,
+                  parent: item.id
+                }
+                return (<ChildItemContainer key={item.id + "_children"} {...p} />)
               }
-              return (<ChildItemContainer {...p} />)
             })()}
           </div>
         ))}

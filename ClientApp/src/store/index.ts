@@ -1,12 +1,10 @@
 import * as Item from './Item';
-import * as Counter from './Counter';
 import * as Stages from './Stages';
 import * as Account from './Account';
 
 // The top-level state object
 export interface ApplicationState {
     account: Account.AccountState | undefined;
-    counter: Counter.CounterState | undefined;
     item: Item.ItemsState | undefined;
     stages: Stages.Stages | undefined;
 }
@@ -15,7 +13,6 @@ export interface ApplicationState {
 // the reducer with the matching name. It's important that the names match exactly, and that the reducer
 // acts on the corresponding ApplicationState property type.
 export const reducers = {
-    counter: Counter.reducer,
     item: Item.reducer,
     stages: Stages.reducer
 };

@@ -27,10 +27,7 @@ class ItemContainer extends React.PureComponent<ItemProps> {
 
   constructor(props: ItemProps) {
     super(props);
-
     this.parent = props.parent;
-    console.log(this.parent);
-
     this.inputRef = React.createRef();
   }
   // This method is called when the component is first added to the document
@@ -54,17 +51,6 @@ class ItemContainer extends React.PureComponent<ItemProps> {
     );
   }
 
-  private selectIcon = (stageId: number): any => {
-    var stage = this.props.stages.find(s => s.id === stageId);
-
-    if (stage) {
-      return stage.icon;
-    }
-
-    return "circle";
-  }
-
-
   private ensureDataFetched() {
     this.parent = (this.props.parent !== undefined && this.props.parent !== "") ? this.props.parent : (this.props.match.params.id || "");
     this.props.requestItems(this.parent);
@@ -83,7 +69,7 @@ class ItemContainer extends React.PureComponent<ItemProps> {
       return ["home"];
     }
     else {
-      var item = this.props.items.find(i => i.id === id);
+      const item = this.props.items.find(i => i.id === id);
 
       if (item) {
         return this.getBreadCrumb(item.parentId).concat([item.id]);
@@ -93,26 +79,33 @@ class ItemContainer extends React.PureComponent<ItemProps> {
     return ["Not found"];
   }
 
-  private keypress(e: any): void {
+  private keypress(e: React.KeyboardEvent<HTMLElement>): void {
+
+    if (!this.props.selectedId)
+      return;
+    if (!this.inputRef.current)
+      return;
 
     if (e.key === 'Enter') {
-      if (!this.props.selectedId)
-        return;
-      if (!this.inputRef.current)
-        return;
-      var start = this.inputRef.current.selectionStart ? this.inputRef.current.selectionStart : 0;
-      var end = this.inputRef.current.selectionEnd ? this.inputRef.current.selectionEnd : 0;
+
+      const start = this.inputRef.current.selectionStart ? this.inputRef.current.selectionStart : 0;
+      const end = this.inputRef.current.selectionEnd ? this.inputRef.current.selectionEnd : 0;
       this.props.split(this.props.selectedId, start, end);
     }
   }
+
+  private keytest(e: React.KeyboardEvent<HTMLElement>): void {
+    console.log("Test");
+  }
+
 
   private renderItems() {
     return (
       <section>
         {this.props.items.filter(i => i.parentId === this.parent).map((item: ItemsStore.Item) => (
           <div key={item.id}>
-            <div onClick={() => { this.props.select(item.id) }} className={`item ${this.props.selectedId === item.id ? "selected" : ""}`}>
-              <span className={`indicator ${this.selectIcon(item.stage)}`}></span>
+            <div  onClick={() => { this.props.select(item.id) }} className={`item ${this.props.selectedId === item.id ? "selected" : ""}`}>
+              <span className={`indicator ${item.indicator}`}></span>
               {(() => {
                 if (this.props.selectedId === item.id) {
                   return <input type="text" ref={this.inputRef} autoFocus className="itemDesc" onKeyPress={(e) => this.keypress(e)} defaultValue={item.summary} />
@@ -130,9 +123,10 @@ class ItemContainer extends React.PureComponent<ItemProps> {
               const p = {
                 ...this.props,
                 level: 1,
-                parent: item.id
+                parent: item.id,
+                keypressHandler: this.keytest
               }
-              return (<ChildItemContainer {...p} />)
+              return (<ChildItemContainer key={item.id + "_children"} {...p} />)
             })()}
 
           </div>

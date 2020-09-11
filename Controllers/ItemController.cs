@@ -39,7 +39,7 @@ namespace Bullt.Controllers
                     Id="1",
                     Stage=0,
                     CreatedDate = DateTime.Now,
-                    Summary = "Item 1"
+                    Summary = "Item 1 #complete {test}"
                 },
                 new Item()
                 {

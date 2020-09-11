@@ -1,5 +1,6 @@
 import { Action, Reducer } from 'redux';
 import { AppThunkAction } from '.';
+import { Stages } from './Stages';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -14,9 +15,11 @@ export interface ItemsState {
 export interface Item {
     id: string;
     parentId: string;
+    parent: Item | undefined;
     createdDate: string;
     stage: number;
     summary: string;
+    indicator: string;
 }
 
 // -----------------
@@ -32,6 +35,7 @@ interface ReceiveItemsAction {
     type: 'RECEIVE_ITEMS';
     parentId: string;
     items: Item[];
+    stages: Stages | undefined;
 }
 
 export interface SelectedAction { type: 'SELECTED', selectedId: string }
@@ -54,7 +58,7 @@ export const actionCreators = {
             fetch(`item`)
                 .then(response => response.json() as Promise<Item[]>)
                 .then(data => {
-                    dispatch({ type: 'RECEIVE_ITEMS', parentId: id, items: data });
+                    dispatch({ type: 'RECEIVE_ITEMS', parentId: id, items: data, stages: appState.stages });
                 });
 
             dispatch({ type: 'REQUEST_ITEMS', parentId: id });
@@ -69,6 +73,14 @@ export const actionCreators = {
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: ItemsState = { items: [], isLoading: false };
+
+export const getNextId = (items: Item[]):string => {
+    return (Math.max.apply(Math, items.map(function (o) { return parseInt(o.id) })) + 1).toString();
+}
+
+export const hasChildren = (items: Item[], id: string): boolean => {
+    return items.some(i => i.parentId === id);
+}
 
 export const reducer: Reducer<ItemsState> = (state: ItemsState | undefined, incomingAction: Action): ItemsState => {
     if (state === undefined) {
@@ -86,19 +98,24 @@ export const reducer: Reducer<ItemsState> = (state: ItemsState | undefined, inco
                 isLoading: true
             };
         case 'RECEIVE_ITEMS':
-            // Only accept the incoming data if it matches the most recent request. This ensures we correctly
-            // handle out-of-order responses.
+
             if (action.parentId === state.parentId) {
                 return {
                     parentId: action.parentId,
                     selectedId: state.selectedId,
-                    items: action.items,
+                    items: action.items.map(i => {
+                        let newItem = {...i};
+                        let stage = action.stages ? action.stages.stages.find(s => s.id === i.stage) : undefined;
+
+                        newItem.parent = action.items.find(x => x.id === i.parentId);
+                        newItem.indicator = stage ? stage.icon : "circle";
+                        return newItem;
+                    }),
                     isLoading: false
                 };
             }
             break;
         case "SELECTED":
-            //newFlau.selectedId = action.id;
             return {
                 parentId: state.parentId,
                 selectedId: action.selectedId,
@@ -108,29 +125,51 @@ export const reducer: Reducer<ItemsState> = (state: ItemsState | undefined, inco
         case 'SPLIT':
             var newItemState = { ...state };
 
-
             newItemState.items = state.items.slice();
-            var selectedItem = newItemState.items.find(i => i.id === newItemState.selectedId);
-            var newId = (Math.max.apply(Math, newItemState.items.map(function (o) { return parseInt(o.id) })) + 1).toString();
+            let selectedItem = newItemState.items.find(i => i.id === newItemState.selectedId);
+            const newId = getNextId(newItemState.items);
 
             if (selectedItem) {
-                var summary = selectedItem.summary;
+                const summary:string = selectedItem.summary;
 
-                var left = summary.slice(0, action.start);
-                var right = summary.slice(action.end, summary.length);
+                const left = summary.slice(0, action.start);
+                const right = summary.slice(action.end, summary.length);
 
-                var newItem: Item = {
-                    parentId: selectedItem.parentId,
-                    id: newId,
-                    stage: selectedItem.stage,
-                    summary: right,
-                    createdDate: selectedItem.createdDate
+                if(hasChildren(newItemState.items, selectedItem.id))
+                {
+                    const newItem: Item = {
+                        parentId: selectedItem.id,
+                        id: newId,
+                        stage: selectedItem.stage,
+                        summary: right,
+                        createdDate: selectedItem.createdDate,
+                        parent: selectedItem,
+                        indicator: selectedItem.indicator
+                    }
+    
+                    selectedItem.summary = left;
+                    
+                    const newIndex = newItemState.items.findIndex(i => i.parentId === newItem.parentId);
+                    newItemState.items.splice(newIndex, 0, newItem);
+                    newItemState.selectedId = newId;
                 }
-
-                selectedItem.summary = left;
-                var newIndex = newItemState.items.indexOf(selectedItem) + 1;
-                newItemState.items.splice(newIndex, 0, newItem);
-                newItemState.selectedId = newId;
+                else 
+                {
+                    const newItem: Item = {
+                        parentId: selectedItem.parentId,
+                        id: newId,
+                        stage: selectedItem.stage,
+                        summary: right,
+                        createdDate: selectedItem.createdDate,
+                        parent: selectedItem.parent,
+                        indicator: selectedItem.indicator
+                    }
+    
+                    selectedItem.summary = left;
+                    const newIndex = newItemState.items.indexOf(selectedItem) + 1;
+                    newItemState.items.splice(newIndex, 0, newItem);
+                    newItemState.selectedId = newId;
+                }
             }
 
             return newItemState;
